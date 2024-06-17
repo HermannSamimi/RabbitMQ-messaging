@@ -27,7 +27,7 @@ jobs:
       env:
         RABBITMQ_CREDENTIAL: ${{ secrets.RABBITMQCREDENTIAL }}
         MONGO_URI: ${{ secrets.MONGO_URI }}
-      run: python data_producer.py
+      run: python Data_producer.py
 
     - name: Run Publisher
       env:
