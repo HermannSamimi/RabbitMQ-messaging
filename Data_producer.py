@@ -8,7 +8,7 @@ import os
 fake = Faker('en_US')
 
 async def produce_data():
-    connection = await aio_pika.connect_robust(os.getenv("hermannconstr"))
+    connection = await aio_pika.connect_robust(os.getenv("RABBITMQCREDENTIAL"))
     async with connection:
         channel = await connection.channel()
         await channel.declare_queue('rabbitmq_queue', durable=True, arguments={'x-queue-type': 'quorum'})
@@ -35,10 +35,10 @@ async def produce_data():
                     body=fake_user_json.encode('utf-8'),
                     delivery_mode=aio_pika.DeliveryMode.PERSISTENT
                 ),
-                routing_key="rabbitmq_queue"
+                routing_key="RabbitMQ_Q"
             )
 
-            await asyncio.sleep(5)  #every 6 hours
+            await asyncio.sleep(1)  
 
 if __name__ == '__main__':
     asyncio.run(produce_data())
