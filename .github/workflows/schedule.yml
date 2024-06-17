@@ -25,24 +25,13 @@ jobs:
 
     - name: Load Environment Variables
       run: |
-        cp .env /tmp/envfile
-        echo "RABBITMQCREDENTIAL=$(grep ^RABBITMQCREDENTIAL= /tmp/envfile | cut -d '=' -f 2-)" >> $GITHUB_ENV
-        echo "MONGO_URI=$(grep ^MONGO_URI= /tmp/envfile | cut -d '=' -f 2-)" >> $GITHUB_ENV
+        cat .env >> $GITHUB_ENV
 
     - name: Run Data Producer
-      env:
-        RABBITMQCREDENTIAL: ${{ env.RABBITMQCREDENTIAL }}
-        MONGO_URI: ${{ env.MONGO_URI }}
       run: python Data_producer.py
 
     - name: Run Publisher
-      env:
-        RABBITMQCREDENTIAL: ${{ env.RABBITMQCREDENTIAL }}
-        MONGO_URI: ${{ env.MONGO_URI }}
       run: python publisher.py
 
     - name: Run Consumer
-      env:
-        RABBITMQCREDENTIAL: ${{ env.RABBITMQCREDENTIAL }}
-        MONGO_URI: ${{ env.MONGO_URI }}
       run: python consumer.py
