@@ -20,7 +20,7 @@ async def produce_data():
                 "name": fake.name(),
                 "address": fake.address(),
                 "email": fake.email(),
-                "credential": {ç
+                "credential": {
                     "username": fake.user_name(),
                     "password": fake.password(),
                 },
