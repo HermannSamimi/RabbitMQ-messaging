@@ -24,10 +24,16 @@ jobs:
         pip install -r requirements.txt
 
     - name: Run Data Producer
-      run: python Data_producer.py
+      run: |
+        source .env
+        python Data_producer.py
 
     - name: Run Publisher
-      run: python publisher.py
+      run: |
+        source .env
+        python publisher.py
 
     - name: Run Consumer
-      run: python consumer.py
+      run: |
+        source .env
+        python consumer.py
