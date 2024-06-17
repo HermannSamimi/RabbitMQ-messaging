@@ -25,13 +25,28 @@ jobs:
 
     - name: Load Environment Variables
       run: |
+        echo "Loading environment variables from .env file"
         cat .env >> $GITHUB_ENV
 
+    - name: Verify Environment Variables
+      run: |
+        echo "RABBITMQCREDENTIAL: ${{ env.RABBITMQCREDENTIAL }}"
+        echo "MONGO_URI: ${{ env.MONGO_URI }}"
+
     - name: Run Data Producer
+      env:
+        RABBITMQCREDENTIAL: ${{ env.RABBITMQCREDENTIAL }}
+        MONGO_URI: ${{ env.MONGO_URI }}
       run: python Data_producer.py
 
     - name: Run Publisher
+      env:
+        RABBITMQCREDENTIAL: ${{ env.RABBITMQCREDENTIAL }}
+        MONGO_URI: ${{ env.MONGO_URI }}
       run: python publisher.py
 
     - name: Run Consumer
+      env:
+        RABBITMQCREDENTIAL: ${{ env.RABBITMQCREDENTIAL }}
+        MONGO_URI: ${{ env.MONGO_URI }}
       run: python consumer.py
