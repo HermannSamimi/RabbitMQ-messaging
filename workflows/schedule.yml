@@ -3,6 +3,7 @@ name: Run Scripts Every 5 Minutes
 on:
   schedule:
     - cron: "*/5 * * * *"
+  workflow_dispatch:  # This enables manual triggering
 
 jobs:
   run-scripts:
