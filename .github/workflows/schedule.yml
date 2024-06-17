@@ -23,20 +23,11 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    # - name: Run Data Producer
-    #   env:
-    #     RABBITMQ_CREDENTIAL: ${{ secrets.RABBITMQCREDENTIAL }}
-    #     MONGO_URI: ${{ secrets.MONGO_URI }}
-    #   run: python Data_producer.py
+    - name: Run Data Producer
+      run: python Data_producer.py
 
     - name: Run Publisher
-      env:
-        RABBITMQ_CREDENTIAL: ${{ secrets.RABBITMQCREDENTIAL }}
-        MONGO_URI: ${{ secrets.MONGO_URI }}
       run: python publisher.py
 
     - name: Run Consumer
-      env:
-        RABBITMQ_CREDENTIAL: ${{ secrets.RABBITMQCREDENTIAL }}
-        MONGO_URI: ${{ secrets.MONGO_URI }}
       run: python consumer.py

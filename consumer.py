@@ -7,6 +7,7 @@ from asyncio import run
 import asyncio
 import logging
 from dateutil import parser
+from datetime import datetime
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -30,7 +31,7 @@ db = mongo_client.FakeData  # Assuming 'FakeData' is your database name
 transactions = db.FakeDataCollection  # Assuming 'FakeDataCollection' is your collection name
 
 # RabbitMQ connection string
-connectionstring = os.getenv('RabbitMQCredential')
+connectionstring = os.getenv('RABBITMQCREDENTIAL')
 
 async def main() -> None:
     connection = await aio_pika.connect_robust(connectionstring)
@@ -54,6 +55,9 @@ async def main() -> None:
                         # Optional: Parse 'timestamp' if it's in your data
                         if 'timestamp' in data:
                             data['timestamp'] = parser.parse(data['timestamp'])
+
+                        # Add ingestion timestamp
+                        data['ingestion_timestamp'] = datetime.utcnow().isoformat()
 
                         # Insert into MongoDB
                         result = transactions.insert_one(data)

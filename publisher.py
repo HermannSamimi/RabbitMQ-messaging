@@ -4,12 +4,13 @@ import aio_pika
 import asyncio
 from dotenv import load_dotenv
 import os
+from datetime import datetime
 
 # Load environment variables from .env file
 load_dotenv()
 
 # Get RabbitMQ credential from environment variable
-rabbitmq_credential = os.getenv("RabbitMQCredential")
+rabbitmq_credential = os.getenv("RABBITMQCREDENTIAL")
 if not rabbitmq_credential:
     raise ValueError("RabbitMQCredential environment variable is not set")
 
@@ -17,7 +18,7 @@ fake = Faker('en_US')
 
 async def produce_data():
     try:
-        connection = await aio_pika.connect_robust(rabbitmq_credential)
+        connection = await aio_pika.connect_robust(os.getenv("RABBITMQCREDENTIAL"))
         async with connection:
             channel = await connection.channel()
             await channel.declare_queue('RabbitMQ_Q', durable=True, arguments={'x-queue-type': 'quorum'})
@@ -34,6 +35,7 @@ async def produce_data():
                     "company": fake.company(),
                     "job": fake.job(),
                     "birthdate": fake.date_of_birth().isoformat(),
+                    "ingestion_timestamp": datetime.utcnow().isoformat()
                 }
 
                 # Convert the dictionary to a JSON string

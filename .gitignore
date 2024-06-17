@@ -1,0 +1,26 @@
+# Ignore .env file
+.env
+
+# Ignore node_modules directory
+node_modules/
+
+# Ignore log files
+*.log
+
+# Ignore compiled Python files
+__pycache__/
+*.pyc
+
+# Ignore directories and files specific to your operating system
+.DS_Store
+Thumbs.db
+
+# Ignore IDE/editor specific files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Ignore any other sensitive files
+secrets.txt
+
