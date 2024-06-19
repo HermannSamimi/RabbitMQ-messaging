@@ -18,12 +18,15 @@ logging.basicConfig(level=logging.DEBUG)
 
 # MongoDB connection
 mongo_uri = os.getenv('MONGO_URI')
+if not mongo_uri:
+    raise ValueError("MONGO_URI environment variable is not set")
+
 try:
     mongo_client = MongoClient(mongo_uri)
     # Attempt to connect to the server
     mongo_client.admin.command('ping')
     logging.info("MongoDB connection successful!")
-except errors.ConnectionError as e:
+except errors.ConfigurationError as e:
     logging.error(f"MongoDB connection failed: {e}")
     raise
 
@@ -32,45 +35,47 @@ transactions = db.FakeDataCollection  # Assuming 'FakeDataCollection' is your co
 
 # RabbitMQ connection string
 connectionstring = os.getenv('RABBITMQCREDENTIAL')
+if not connectionstring:
+    raise ValueError("RABBITMQCREDENTIAL environment variable is not set")
 
 async def main() -> None:
-    connection = await aio_pika.connect_robust(connectionstring)
+    try:
+        connection = await aio_pika.connect_robust(connectionstring)
+        async with connection:
+            channel = await connection.channel()
 
-    queue_name = "RabbitMQ_Q"
+            # Declaring queue
+            queue = await channel.declare_queue("RabbitMQ_Q", durable=True, arguments={'x-queue-type': 'quorum'})
 
-    async with connection:
-        channel = await connection.channel()
+            async with queue.iterator() as queue_iter:
+                async for message in queue_iter:
+                    async with message.process():
+                        try:
+                            # Decode byte string to JSON and load into Python dictionary
+                            data = json.loads(message.body.decode())
+                            logging.debug(f"Received message: {data}")
 
-        # Declaring queue
-        queue = await channel.declare_queue(queue_name, durable=True, arguments={'x-queue-type': 'quorum'})
+                            # Optional: Parse 'timestamp' if it's in your data
+                            if 'timestamp' in data:
+                                data['timestamp'] = parser.parse(data['timestamp'])
 
-        async with queue.iterator() as queue_iter:
-            async for message in queue_iter:
-                async with message.process():
-                    try:
-                        # Decode byte string to JSON and load into Python dictionary
-                        data = json.loads(message.body.decode())
-                        logging.debug(f"Received message: {data}")
+                            # Add ingestion timestamp
+                            data['ingestion_timestamp'] = datetime.utcnow().isoformat()
 
-                        # Optional: Parse 'timestamp' if it's in your data
-                        if 'timestamp' in data:
-                            data['timestamp'] = parser.parse(data['timestamp'])
+                            # Insert into MongoDB
+                            result = transactions.insert_one(data)
+                            logging.info(f"Data inserted with _id: {result.inserted_id}")
+                        except json.JSONDecodeError as e:
+                            logging.error(f"Failed to decode JSON: {e}")
+                        except errors.PyMongoError as e:
+                            logging.error(f"MongoDB insertion error: {e}")
+                        except Exception as e:
+                            logging.error(f"An unexpected error occurred: {e}")
 
-                        # Add ingestion timestamp
-                        data['ingestion_timestamp'] = datetime.utcnow().isoformat()
-
-                        # Insert into MongoDB
-                        result = transactions.insert_one(data)
-                        logging.info(f"Data inserted with _id: {result.inserted_id}")
-                    except json.JSONDecodeError as e:
-                        logging.error(f"Failed to decode JSON: {e}")
-                    except errors.PyMongoError as e:
-                        logging.error(f"MongoDB insertion error: {e}")
-                    except Exception as e:
-                        logging.error(f"An unexpected error occurred: {e}")
-
-                    if queue.name in message.body.decode():
-                        break
+                        if queue.name in message.body.decode():
+                            break
+    except Exception as e:
+        logging.error(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     asyncio.run(main())
