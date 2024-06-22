@@ -54,4 +54,7 @@ async def produce_data():
         print(f"An error occurred: {e}")
 
 if __name__ == '__main__':
-    asyncio.run(produce_data())
+    try:
+        asyncio.run(asyncio.wait_for(produce_data(), timeout=300))  # 300 seconds = 5 minutes
+    except asyncio.TimeoutError:
+        print("Producer stopped after 5 minutes.")

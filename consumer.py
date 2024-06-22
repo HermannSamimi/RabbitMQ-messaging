@@ -47,9 +47,16 @@ async def main() -> None:
             # Declaring queue
             queue = await channel.declare_queue("RabbitMQ_Q", durable=True, arguments={'x-queue-type': 'quorum'})
 
+            start_time = datetime.utcnow()
             async with queue.iterator() as queue_iter:
                 async for message in queue_iter:
                     async with message.process():
+                        current_time = datetime.utcnow()
+                        elapsed_time = (current_time - start_time).total_seconds()
+                        if elapsed_time > 300:  # 300 seconds = 5 minutes
+                            logging.info("Stopping execution after 5 minutes.")
+                            break
+
                         try:
                             # Decode byte string to JSON and load into Python dictionary
                             data = json.loads(message.body.decode())
@@ -72,10 +79,11 @@ async def main() -> None:
                         except Exception as e:
                             logging.error(f"An unexpected error occurred: {e}")
 
-                        if queue.name in message.body.decode():
-                            break
     except Exception as e:
         logging.error(f"An error occurred: {e}")
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(asyncio.wait_for(main(), timeout=300))  # 300 seconds = 5 minutes
+    except asyncio.TimeoutError:
+        logging.info("Consumer stopped after 5 minutes.")
