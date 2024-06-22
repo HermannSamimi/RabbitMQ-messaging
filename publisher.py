@@ -4,7 +4,7 @@ import aio_pika
 import asyncio
 from dotenv import load_dotenv
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Load environment variables from .env file
 load_dotenv()
@@ -22,7 +22,8 @@ async def produce_data():
         async with connection:
             channel = await connection.channel()
             await channel.declare_queue('RabbitMQ_Q', durable=True, arguments={'x-queue-type': 'quorum'})
-            while True:
+            end_time = datetime.utcnow() + timedelta(minutes=5)
+            while datetime.utcnow() < end_time:
                 fake_user = {
                     "name": fake.name(),
                     "address": fake.address(),
@@ -54,7 +55,4 @@ async def produce_data():
         print(f"An error occurred: {e}")
 
 if __name__ == '__main__':
-    try:
-        asyncio.run(asyncio.wait_for(produce_data(), timeout=300))  # 300 seconds = 5 minutes
-    except asyncio.TimeoutError:
-        print("Producer stopped after 5 minutes.")
+    asyncio.run(produce_data())

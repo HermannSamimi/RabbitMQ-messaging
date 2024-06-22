@@ -3,11 +3,10 @@ import os
 from pymongo import MongoClient, errors
 import json
 import aio_pika
-from asyncio import run
 import asyncio
 import logging
 from dateutil import parser
-from datetime import datetime
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -47,13 +46,11 @@ async def main() -> None:
             # Declaring queue
             queue = await channel.declare_queue("RabbitMQ_Q", durable=True, arguments={'x-queue-type': 'quorum'})
 
-            start_time = datetime.utcnow()
+            end_time = datetime.utcnow() + timedelta(minutes=5)
             async with queue.iterator() as queue_iter:
                 async for message in queue_iter:
                     async with message.process():
-                        current_time = datetime.utcnow()
-                        elapsed_time = (current_time - start_time).total_seconds()
-                        if elapsed_time > 300:  # 300 seconds = 5 minutes
+                        if datetime.utcnow() >= end_time:
                             logging.info("Stopping execution after 5 minutes.")
                             break
 
@@ -83,7 +80,4 @@ async def main() -> None:
         logging.error(f"An error occurred: {e}")
 
 if __name__ == "__main__":
-    try:
-        asyncio.run(asyncio.wait_for(main(), timeout=300))  # 300 seconds = 5 minutes
-    except asyncio.TimeoutError:
-        logging.info("Consumer stopped after 5 minutes.")
+    asyncio.run(main())
