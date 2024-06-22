@@ -7,6 +7,7 @@ on:
 jobs:
   run-publisher:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
     - name: Checkout Repository
@@ -30,6 +31,7 @@ jobs:
 
   run-consumer:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
     - name: Checkout Repository
