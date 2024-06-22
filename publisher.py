@@ -49,7 +49,7 @@ async def produce_data():
                     routing_key="RabbitMQ_Q"
                 )
 
-                await asyncio.sleep(3600)
+                await asyncio.sleep(10)
     except Exception as e:
         print(f"An error occurred: {e}")
 
