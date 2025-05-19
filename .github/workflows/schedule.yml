@@ -10,68 +10,40 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
 
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
 
-      - name: Run producer.py
-        env:
-          RABBITMQCREDENTIAL: ${{ secrets.RABBITMQCREDENTIAL }}
-        run: |
-          timeout 60s python producer.py
-
-  mongo-check:
-    name: Mongo Checker
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-
-      - name: Run mongochechker.py
-        env:
-          RABBITMQCREDENTIAL: ${{ secrets.RABBITMQCREDENTIAL }}
-          MONGO_URI: ${{ secrets.MONGO_URI }}
-        run: |
-          timeout 60s python mongochechker.py
+    - name: Run producer.py
+      env:
+        RABBITMQCREDENTIAL: ${{ secrets.RABBITMQCREDENTIAL }}
+      run: |
+        timeout 60s python producer.py
 
   consumer:
     name: Consumer
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
 
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-
-      - name: Run consumer.py
-        env:
-          RABBITMQCREDENTIAL: ${{ secrets.RABBITMQCREDENTIAL }}
-          MONGO_URI: ${{ secrets.MONGO_URI }}
-        run: |
-          timeout 60s python consumer.py
+    - name: Run consumer.py
+      env:
+        RABBITMQCREDENTIAL: ${{ secrets.RABBITMQCREDENTIAL }}
+        MONGO_URI: ${{ secrets.MONGO_URI }}
+      run: |
+        timeout 60s python consumer.py
