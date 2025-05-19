@@ -2,7 +2,7 @@ name: Run RabbitMQ Job Daily 2
 
 on:
   schedule:
-    - cron: '0 2 * * *'  # Runs at 02:00 UTC daily
+    - cron: '5 17 * * *'  # Runs at 02:00 UTC daily
   workflow_dispatch:     # Allows manual trigger from GitHub UI
 
 jobs:
