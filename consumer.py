@@ -8,6 +8,7 @@ import aio_pika
 from dateutil import parser
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
+import certifi
 
 # Load environment variables
 load_dotenv()
@@ -25,7 +26,7 @@ try:
     mongo_client = MongoClient(
         mongo_uri,
         tls=True,
-        tlsAllowInvalidCertificates=True,  # Allows certs in CI/CD
+        tlsCAFile=certifi.where(),      # ← use certifi’s up-to-date CA list
         serverSelectionTimeoutMS=30000
     )
 
