@@ -14,7 +14,7 @@ async def produce_data():
     connection = await aio_pika.connect_robust(
         os.getenv("RABBITMQCREDENTIAL"),
         client_properties={
-            "connection_name": "Data Producer"
+            "connection_name": "Data Producer(second source)"
         }
     )
     async with connection:
