@@ -22,15 +22,15 @@ if not mongo_uri:
 
 try:
     mongo_client = MongoClient(mongo_uri)
-    # Attempt to connect to the server
-    mongo_client.admin.command('ping')
+    mongo_client.admin.command('ping')  # test connection
     logging.info("MongoDB connection successful!")
 except errors.ConfigurationError as e:
     logging.error(f"MongoDB connection failed: {e}")
     raise
 
-db = mongo_client.FakeData  # Assuming 'FakeData' is your database name
-transactions = db.FakeDataCollection  # Assuming 'FakeDataCollection' is your collection name
+# Use DB and Collection
+db = mongo_client.FakeData
+transactions = db.FakeDataCollection
 
 # RabbitMQ connection string
 connectionstring = os.getenv('RABBITMQCREDENTIAL')
@@ -39,14 +39,23 @@ if not connectionstring:
 
 async def main() -> None:
     try:
-        connection = await aio_pika.connect_robust(connectionstring)
+        # Set custom connection name for RabbitMQ UI
+        connection = await aio_pika.connect_robust(
+            connectionstring,
+            client_properties={
+                "connection_name": "Data Consumer"
+            }
+        )
+
         async with connection:
             channel = await connection.channel()
 
-            # Declaring queue
+            # Declare queue (must match producer's routing)
             queue = await channel.declare_queue("RabbitMQ_Q", durable=True, arguments={'x-queue-type': 'quorum'})
 
+            # Stop after 5 minutes
             end_time = datetime.utcnow() + timedelta(minutes=5)
+
             async with queue.iterator() as queue_iter:
                 async for message in queue_iter:
                     async with message.process():
@@ -55,20 +64,17 @@ async def main() -> None:
                             break
 
                         try:
-                            # Decode byte string to JSON and load into Python dictionary
                             data = json.loads(message.body.decode())
                             logging.debug(f"Received message: {data}")
 
-                            # Optional: Parse 'timestamp' if it's in your data
                             if 'timestamp' in data:
                                 data['timestamp'] = parser.parse(data['timestamp'])
 
-                            # Add ingestion timestamp
                             data['ingestion_timestamp'] = datetime.utcnow().isoformat()
 
-                            # Insert into MongoDB
                             result = transactions.insert_one(data)
                             logging.info(f"Data inserted with _id: {result.inserted_id}")
+
                         except json.JSONDecodeError as e:
                             logging.error(f"Failed to decode JSON: {e}")
                         except errors.PyMongoError as e:
