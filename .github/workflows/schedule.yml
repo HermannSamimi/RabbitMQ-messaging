@@ -1,15 +1,16 @@
-name: Run Scripts
+name: Run Producer and Consumer in Parallel
 
 on:
   workflow_dispatch:
   push:
 
 jobs:
-  run-app:
+  producer:
+    name: Producer
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
+    - name: Checkout code
       uses: actions/checkout@v3
 
     - name: Set up Python
@@ -17,15 +18,36 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Install Dependencies
+    - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Run producer and consumer in parallel
+    - name: Run producer.py
+      env:
+        RABBITMQCREDENTIAL: ${{ secrets.RABBITMQCREDENTIAL }}
+      run: |
+        timeout 60s python producer.py
+
+  consumer:
+    name: Consumer
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+
+    - name: Run consumer.py
       env:
         RABBITMQCREDENTIAL: ${{ secrets.RABBITMQCREDENTIAL }}
         MONGO_URI: ${{ secrets.MONGO_URI }}
       run: |
-        echo "⏳ Running producer and consumer..."
-        python app.py
+        timeout 60s python consumer.py
