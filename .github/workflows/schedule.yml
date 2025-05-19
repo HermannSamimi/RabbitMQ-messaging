@@ -1,8 +1,8 @@
 name: Run Scripts
 
 on:
+  workflow_dispatch:
   push:
-  workflow_dispatch:  # This enables manual triggering
 
 jobs:
   run-app:
@@ -22,8 +22,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Run app
+    - name: Run producer and consumer in parallel
       env:
         RABBITMQCREDENTIAL: ${{ secrets.RABBITMQCREDENTIAL }}
         MONGO_URI: ${{ secrets.MONGO_URI }}
-      run: python app.py
+      run: |
+        echo "⏳ Running producer and consumer..."
+        python app.py
