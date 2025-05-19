@@ -21,11 +21,16 @@ if not mongo_uri:
     raise ValueError("MONGO_URI environment variable is not set")
 
 try:
-    mongo_client = MongoClient(mongo_uri, tls=True, tlsAllowInvalidCertificates=True)
+    mongo_client = MongoClient(
+        mongo_uri,
+        tls=True,
+        tlsAllowInvalidCertificates=True,
+        serverSelectionTimeoutMS=30000
+    )
     mongo_client.admin.command('ping')  # test connection
-    logging.info("MongoDB connection successful!")
-except errors.ConfigurationError as e:
-    logging.error(f"MongoDB connection failed: {e}")
+    logging.info("✅ MongoDB connection successful!")
+except (errors.ServerSelectionTimeoutError, errors.ConfigurationError) as e:
+    logging.error(f"❌ MongoDB connection failed: {e}")
     raise
 
 # Use DB and Collection
