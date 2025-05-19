@@ -1,3 +1,9 @@
+name: Run Producer and Consumer in Parallel
+
+on:
+  workflow_dispatch:
+  push:
+
 jobs:
   producer:
     name: Producer
@@ -18,10 +24,8 @@ jobs:
         python -m pip install -r requirements.txt
 
     - name: Run producer.py
--      run: |
--        timeout 60s python producer.py
-+      run: |
-+        timeout 60s python producer.py || true
+      run: |
+        timeout 60s python producer.py || true
 
   consumer:
     name: Consumer
@@ -42,7 +46,5 @@ jobs:
         python -m pip install -r requirements.txt
 
     - name: Run consumer.py
--      run: |
--        timeout 60s python consumer.py
-+      run: |
-+        timeout 60s python consumer.py || true
+      run: |
+        timeout 60s python consumer.py || true
