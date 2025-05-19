@@ -45,7 +45,7 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: Run mongo_checker.py
+      - name: Run mongochechker.py
         env:
           RABBITMQCREDENTIAL: ${{ secrets.RABBITMQCREDENTIAL }}
           MONGO_URI: ${{ secrets.MONGO_URI }}
