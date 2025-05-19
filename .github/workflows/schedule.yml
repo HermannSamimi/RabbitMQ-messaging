@@ -1,52 +1,32 @@
-name: Run Scripts
+name: Run RabbitMQ Job Daily
 
 on:
-  push:
-  workflow_dispatch:  # This enables manual triggering
+  schedule:
+    - cron: '0 2 * * *'  # Runs at 02:00 UTC daily
+  workflow_dispatch:     # Allows manual trigger from GitHub UI
 
 jobs:
-  run-publisher:
+  run-app:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
 
-    - name: Install Dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-    - name: Run Publisher
-      env:
-        RABBITMQCREDENTIAL: ${{ secrets.RABBITMQCREDENTIAL }}
-        MONGO_URI: ${{ secrets.MONGO_URI }}
-      run: python publisher.py
+      - name: Create .env file
+        run: |
+          echo "RABBITMQCREDENTIAL=${{ secrets.RABBITMQCREDENTIAL }}" >> .env
+          echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env
 
-  run-consumer:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v3
-
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-
-    - name: Install Dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: Run Consumer
-      env:
-        RABBITMQCREDENTIAL: ${{ secrets.RABBITMQCREDENTIAL }}
-        MONGO_URI: ${{ secrets.MONGO_URI }}
-      run: python consumer.py
+      - name: Run app.py
+        run: python app.py

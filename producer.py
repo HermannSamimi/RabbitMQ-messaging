@@ -4,6 +4,10 @@ import time
 import aio_pika
 import asyncio
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 fake = Faker('en_US')
 
@@ -11,7 +15,7 @@ async def produce_data():
     connection = await aio_pika.connect_robust(os.getenv("RABBITMQCREDENTIAL"))
     async with connection:
         channel = await connection.channel()
-        await channel.declare_queue('rabbitmq_queue', durable=True, arguments={'x-queue-type': 'quorum'})
+        await channel.declare_queue('send_to_RMQ', durable=True, arguments={'x-queue-type': 'quorum'})
         while True:
             fake_user = {
                 "name": fake.name(),
