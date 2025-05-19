@@ -1,50 +1,57 @@
 name: Run Producer and Consumer in Parallel
 
 on:
-  workflow_dispatch:
   push:
+  workflow_dispatch:
 
 jobs:
   producer:
     name: Producer
     runs-on: ubuntu-latest
+    # <-- put your Rabbit URI here once for all steps
+    env:
+      RABBITMQCREDENTIAL: ${{ secrets.RABBITMQCREDENTIAL }}
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install -r requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
 
-    - name: Run producer.py
-      run: |
-        timeout 60s python producer.py || true
+      - name: Run producer.py
+        run: |
+          timeout 60s python producer.py || true
 
   consumer:
     name: Consumer
     runs-on: ubuntu-latest
+    # <-- both RabbitURI and Mongo URI here
+    env:
+      RABBITMQCREDENTIAL: ${{ secrets.RABBITMQCREDENTIAL }}
+      MONGO_URI:          ${{ secrets.MONGO_URI }}
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install -r requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
 
-    - name: Run consumer.py
-      run: |
-        timeout 60s python consumer.py || true
+      - name: Run consumer.py
+        run: |
+          timeout 60s python consumer.py || true
