@@ -1,31 +1,25 @@
-# Ignore .env file
+# Environment & Secrets
 .env
+secrets.txt
+publisher.deactivate
+mongotest.py
 
-# Ignore node_modules directory
-node_modules/
-
-# Ignore log files
-*.log
-
-# Ignore compiled Python files
+# Python cache and compiled files
 __pycache__/
 *.pyc
 
-# Ignore directories and files specific to your operating system
-.DS_Store
-Thumbs.db
+# Log files
+*.log
 
-# Ignore IDE/editor specific files
+# Editor/IDE settings
 .vscode/
 .idea/
 *.sublime-project
 *.sublime-workspace
 
-# Ignore any other sensitive files
-secrets.txt
+# OS-generated files
+.DS_Store
+Thumbs.db
 
-
-#other files
-mongotest.py
-publisher.deactivate
-
+# Node.js
+node_modules/
