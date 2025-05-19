@@ -27,5 +27,5 @@ secrets.txt
 
 #other files
 mongotest.py
-publisher.deactivated
+publisher.deactivate
 
