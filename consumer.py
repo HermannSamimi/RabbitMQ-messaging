@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.DEBUG)
 mongo_uri = os.getenv('MONGO_URI')
 if not mongo_uri:
     raise ValueError("MONGO_URI environment variable is not set")
-
+print("wow")
 try:
     mongo_client = MongoClient(
         mongo_uri,
