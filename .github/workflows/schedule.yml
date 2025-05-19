@@ -3,7 +3,9 @@ name: Run Producer and Consumer in Parallel
 on:
   push:
   workflow_dispatch:
-
+  schedule:
+  # every day at 08:00 Europe/Tallinn (UTC+2)
+  - cron: '0 6 * * *'
 jobs:
   producer:
     name: Producer
