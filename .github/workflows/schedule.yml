@@ -4,19 +4,18 @@ on:
   push:
   workflow_dispatch:
   schedule:
-  # every day at 08:00 Europe/Tallinn (UTC+2)
+    # every day at 08:00 Europe/Tallinn (UTC+2)
     - cron: '0 6 * * *'
+
 jobs:
   producer:
     name: Producer
     runs-on: ubuntu-latest
-    # <-- put your Rabbit URI here once for all steps
     env:
       RABBITMQCREDENTIAL: ${{ secrets.RABBITMQCREDENTIAL }}
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -32,17 +31,38 @@ jobs:
         run: |
           timeout 60s python producer.py || true
 
+  producer_2s:
+    name: Producer 2
+    runs-on: ubuntu-latest
+    env:
+      RABBITMQCREDENTIAL: ${{ secrets.RABBITMQCREDENTIAL }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Run producer_2s.py
+        run: |
+          timeout 60s python producer_2s.py || true
+
   consumer:
     name: Consumer
     runs-on: ubuntu-latest
-    # <-- both RabbitURI and Mongo URI here
     env:
       RABBITMQCREDENTIAL: ${{ secrets.RABBITMQCREDENTIAL }}
       MONGO_URI:          ${{ secrets.MONGO_URI }}
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v4
