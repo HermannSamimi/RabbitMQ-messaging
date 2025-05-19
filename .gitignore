@@ -2,7 +2,7 @@
 .env
 secrets.txt
 publisher.deactivate
-mongotest.py
+mongochechker.py
 
 # Python cache and compiled files
 __pycache__/
