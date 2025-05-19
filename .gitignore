@@ -24,3 +24,8 @@ Thumbs.db
 # Ignore any other sensitive files
 secrets.txt
 
+
+#other files
+mongotest.py
+publisher.deactivated
+
