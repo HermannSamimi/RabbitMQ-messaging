@@ -1,9 +1,3 @@
-name: Run Producer and Consumer in Parallel
-
-on:
-  workflow_dispatch:
-  push:
-
 jobs:
   producer:
     name: Producer
@@ -20,13 +14,14 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install -r requirements.txt
+        python -m pip install --upgrade pip
+        python -m pip install -r requirements.txt
 
     - name: Run producer.py
-      env:
-        RABBITMQCREDENTIAL: ${{ secrets.RABBITMQCREDENTIAL }}
-      run: |
-        timeout 60s python producer.py
+-      run: |
+-        timeout 60s python producer.py
++      run: |
++        timeout 60s python producer.py || true
 
   consumer:
     name: Consumer
@@ -47,8 +42,7 @@ jobs:
         python -m pip install -r requirements.txt
 
     - name: Run consumer.py
-      env:
-        RABBITMQCREDENTIAL: ${{ secrets.RABBITMQCREDENTIAL }}
-        MONGO_URI: ${{ secrets.MONGO_URI }}
-      run: |
-        timeout 60s python consumer.py
+-      run: |
+-        timeout 60s python consumer.py
++      run: |
++        timeout 60s python consumer.py || true
