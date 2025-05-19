@@ -50,7 +50,7 @@ jobs:
           RABBITMQCREDENTIAL: ${{ secrets.RABBITMQCREDENTIAL }}
           MONGO_URI: ${{ secrets.MONGO_URI }}
         run: |
-          timeout 60s python mongo_checker.py
+          timeout 60s python mongochechker.py
 
   consumer:
     name: Consumer
