@@ -1,4 +1,4 @@
-name: Run RabbitMQ Job Daily
+name: Run RabbitMQ Job Daily 2
 
 on:
   schedule:
