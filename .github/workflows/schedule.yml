@@ -27,6 +27,25 @@ jobs:
         RABBITMQCREDENTIAL: ${{ secrets.RABBITMQCREDENTIAL }}
       run: |
         timeout 60s python producer.py
+  
+  mongochecherk:
+    name: mongotst
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Run mongochechker.py
+      env:
+        RABBITMQCREDENTIAL: ${{ secrets.RABBITMQCREDENTIAL }}
+      run: |
+        timeout 60s python mongochechker.py
 
   consumer:
     name: Consumer
@@ -40,10 +59,6 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
-
-    - name: Install dependencies
-      run: |
-        pip install -r requirements.txt
 
     - name: Run consumer.py
       env:
